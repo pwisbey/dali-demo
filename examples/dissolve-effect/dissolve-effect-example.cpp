@@ -252,6 +252,7 @@ void DissolveEffectApp::OnInit( Application& application )
 
   // show the first image
   mCurrentImage = ImageActor::New( LoadStageFillingImage( IMAGES[mIndex] ) );
+  mCurrentImage.SetRelayoutEnabled( false );
   mCurrentImage.SetPositionInheritanceMode(USE_PARENT_POSITION_PLUS_LOCAL_POSITION);
   mCurrentImage.SetResizePolicy( FILL_TO_PARENT, ALL_DIMENSIONS );
   mCurrentImage.SetSizeScalePolicy( FIT_WITH_ASPECT_RATIO );
@@ -282,6 +283,7 @@ void DissolveEffectApp::OnPanGesture( Actor actor, const PanGesture& gesture )
 
     Image image = LoadStageFillingImage( IMAGES[ mIndex ] );
     mNextImage = ImageActor::New( image );
+    mNextImage.SetRelayoutEnabled( false );
     mNextImage.SetPositionInheritanceMode(USE_PARENT_POSITION_PLUS_LOCAL_POSITION);
     mNextImage.SetResizePolicy( FILL_TO_PARENT, ALL_DIMENSIONS );
     mNextImage.SetSizeScalePolicy( FIT_WITH_ASPECT_RATIO );
@@ -302,7 +304,7 @@ void DissolveEffectApp::StartTransition(Vector2 position, Vector2 displacement)
   mAnimation.AnimateTo( Property(mCurrentImageEffect, mCurrentImageEffect.GetDistortionPropertyName()), 1.0f, AlphaFunctions::Linear );
 
   mNextImage.SetOpacity(0.0f);
-  mAnimation.OpacityTo( mNextImage, 1.0, AlphaFunctions::Linear );
+  mAnimation.AnimateTo( Property( mNextImage, Actor::Property::COLOR_ALPHA ), 1.0f, AlphaFunctions::Linear );
 
   if(mUseHighPrecision)
   {
@@ -313,7 +315,7 @@ void DissolveEffectApp::StartTransition(Vector2 position, Vector2 displacement)
   }
   else
   {
-    mAnimation.MoveTo(mNextImage, Vector3(0.0f, 0.0f, 0.0f), AlphaFunctions::Linear);
+    mAnimation.AnimateTo( Property( mNextImage, Actor::Property::POSITION ), Vector3( 0.0f, 0.0f, 0.0f ), AlphaFunctions::Linear );
   }
 
   mAnimation.FinishedSignal().Connect( this, &DissolveEffectApp::OnTransitionCompleted );
