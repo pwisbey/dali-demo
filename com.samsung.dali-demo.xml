@@ -127,4 +127,7 @@
 	<ui-application appid="image-view.example" exec="/usr/apps/com.samsung.dali-demo/bin/image-view.example" nodisplay="true" multiple="false" type="c++app" taskmanage="true">
 		<label>Image View</label>
 	</ui-application>
+	<ui-application appid="bee-test.example" exec="/usr/apps/com.samsung.dali-demo/bin/bee-test.example" nodisplay="true" multiple="false" type="c++app" taskmanage="true">
+		<label>Bee Test</label>
+	</ui-application>
 </manifest>
