@@ -16,9 +16,10 @@
  */
 
 #include <dali-toolkit/dali-toolkit.h>
+#include <stdio.h>
 
 using namespace Dali;
-using Dali::Toolkit::TextLabel;
+using namespace Dali::Toolkit;
 
 // This example shows how to create and display Hello World! using a simple TextActor
 //
@@ -45,24 +46,110 @@ public:
     Stage stage = Stage::GetCurrent();
     stage.SetBackgroundColor( Color::WHITE );
 
-    TextLabel textLabel = TextLabel::New( "Hello World" );
-    textLabel.SetAnchorPoint( AnchorPoint::TOP_LEFT );
-    textLabel.SetName( "helloWorldLabel" );
-    stage.Add( textLabel );
+    Control actor1 = Toolkit::Control::New();
+    actor1.SetBackgroundColor( Vector4( 1.0f, 0.0f, 0.0f, 1.0f ) );
+    actor1.SetAnchorPoint( AnchorPoint::TOP_LEFT );
+    actor1.SetParentOrigin( ParentOrigin::TOP_LEFT );
+    actor1.SetSize( 100.0f, 100.0f );
+    actor1.SetPosition( 50.0f, 50.0f );
+    actor1.SetName( "Actor1" );
+    actor1.TouchedSignal().Connect( this, &HelloWorldController::OnTouch );
+    stage.Add( actor1 );
 
-    // Respond to a click anywhere on the stage
-    stage.GetRootLayer().TouchedSignal().Connect( this, &HelloWorldController::OnTouch );
+    Control actor2 = Toolkit::Control::New();
+    actor2.SetBackgroundColor( Vector4( 0.0f, 1.0f, 0.0f, 1.0f ) );
+    actor2.SetAnchorPoint( AnchorPoint::TOP_LEFT );
+    actor2.SetParentOrigin( ParentOrigin::TOP_LEFT );
+    actor2.SetSize( 100.0f, 100.0f );
+    actor2.SetPosition( 200.0f, 50.0f );
+    actor2.SetName( "Actor2" );
+    actor2.TouchedSignal().Connect( this, &HelloWorldController::OnTouch );
+    stage.Add( actor2 );
+
+    Control actor3 = Toolkit::Control::New();
+    actor3.SetBackgroundColor( Vector4( 0.0f, 0.0f, 1.0f, 1.0f ) );
+    actor3.SetAnchorPoint( AnchorPoint::TOP_LEFT );
+    actor3.SetParentOrigin( ParentOrigin::TOP_LEFT );
+    actor3.SetSize( 100.0f, 100.0f );
+    actor3.SetPosition( 350.0f, 50.0f );
+    actor3.SetName( "Actor3" );
+    actor3.TouchedSignal().Connect( this, &HelloWorldController::OnTouch );
+    stage.Add( actor3 );
+
+    Control actor4 = Toolkit::Control::New();
+    actor4.SetBackgroundColor( Vector4( 1.0f, 1.0f, 0.0f, 1.0f ) );
+    actor4.SetAnchorPoint( AnchorPoint::TOP_LEFT );
+    actor4.SetParentOrigin( ParentOrigin::TOP_LEFT );
+    actor4.SetSize( 100.0f, 100.0f );
+    actor4.SetPosition( 50.0f, 200.0f );
+    actor4.SetName( "Actor4" );
+    actor4.TouchedSignal().Connect( this, &HelloWorldController::OnTouch );
+    stage.Add( actor4 );
+
+    Control actor5 = Toolkit::Control::New();
+    actor5.SetBackgroundColor( Vector4( 0.0f, 1.0f, 1.0f, 1.0f ) );
+    actor5.SetAnchorPoint( AnchorPoint::TOP_LEFT );
+    actor5.SetParentOrigin( ParentOrigin::TOP_LEFT );
+    actor5.SetSize( 100.0f, 100.0f );
+    actor5.SetPosition( 200.0f, 200.0f );
+    actor5.SetName( "Actor5" );
+    actor5.TouchedSignal().Connect( this, &HelloWorldController::OnTouch );
+    stage.Add( actor5 );
+
+    Control actor6 = Toolkit::Control::New();
+    actor6.SetBackgroundColor( Vector4( 1.0f, 0.0f, 1.0f, 1.0f ) );
+    actor6.SetAnchorPoint( AnchorPoint::TOP_LEFT );
+    actor6.SetParentOrigin( ParentOrigin::TOP_LEFT );
+    actor6.SetSize( 100.0f, 100.0f );
+    actor6.SetPosition( 350.0f, 200.0f );
+    actor6.SetName( "Actor6" );
+    actor6.TouchedSignal().Connect( this, &HelloWorldController::OnTouch );
+    stage.Add( actor6 );
   }
 
   bool OnTouch( Actor actor, const TouchEvent& touch )
   {
-    // quit the application
-    mApplication.Quit();
+    const TouchPoint& point = touch.GetPoint(0);
+
+    switch( point.state )
+    {
+      case TouchPoint::Down:
+      {
+        printf( "TouchPoint::Down: %s\n", actor.GetName().c_str() );
+        actor.SetDrawMode( DrawMode::OVERLAY_2D );
+        mTouch = point.screen;
+        break;
+      }
+      case TouchPoint::Motion:
+      {
+        actor.TranslateBy( Vector3( point.screen.x - mTouch.x, point.screen.y - mTouch.y, 0.0f ) );
+        mTouch = point.screen;
+        break;
+      }
+      case TouchPoint::Up:
+      {
+        printf( "TouchPoint::Up: %s\n", actor.GetName().c_str() );
+        actor.SetDrawMode( DrawMode::NORMAL );
+        break;
+      }
+      case TouchPoint::Interrupted:
+      {
+        printf( "TouchPoint::Interrupted: %s\n", actor.GetName().c_str() );
+        actor.SetDrawMode( DrawMode::NORMAL );
+        break;
+      }
+      default:
+      {
+        break;
+      }
+    }
+
     return true;
   }
 
 private:
   Application&  mApplication;
+  Vector2 mTouch;
 };
 
 void RunTest( Application& application )
