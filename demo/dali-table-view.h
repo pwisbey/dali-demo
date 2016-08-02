@@ -103,7 +103,7 @@ private: // Application callbacks & implementation
   enum ShapeType
   {
     CIRCLE,
-    SQUARE
+    BUBBLE
   };
 
   /**
@@ -135,23 +135,16 @@ private: // Application callbacks & implementation
   void Rotate( unsigned int degrees );
 
   /**
-   * Creates a tile for the main menu and toolbar.
+   * Creates a tile for the main menu.
    *
    * @param[in] name The unique name for this Tile
    * @param[in] title The text caption that appears on the Tile
    * @param[in] parentSize Tile's parent size.
-   * @param[in] addBackground Whether to add a background graphic to the tile or not
+   * @param[in] position The tiles relative position within a page
    *
    * @return The Actor for the created tile.
    */
-  Dali::Actor CreateTile( const std::string& name, const std::string& title, const Dali::Vector3& sizeMultiplier, bool addBackground );
-
-  /**
-   * Create a stencil image
-   *
-   * @return The stencil image
-   */
-  Dali::Toolkit::ImageView NewStencilImage();
+  Dali::Actor CreateTile( const std::string& name, const std::string& title, const Dali::Vector3& sizeMultiplier, Dali::Vector2& position );
 
   // Signal handlers
 
@@ -268,9 +261,9 @@ private: // Application callbacks & implementation
    *
    * @param[in] layer The layer to add the actors to
    * @param[in] count The number of actors to generate
-   * @param[in] distanceField The distance field bitmap to use
+   * @param[in] distanceField A array (pointer) to 2 distance field types to use
    */
-  void AddBackgroundActors( Dali::Actor layer, int count, Dali::BufferImage distanceField );
+  void AddBackgroundActors( Dali::Actor layer, int count, Dali::BufferImage* distanceField );
 
   /**
    * Create a bitmap with the specified shape and also output a distance field
@@ -296,8 +289,9 @@ private: // Application callbacks & implementation
    * @param[in] size The size of the bitmap to create
    * @param[out] imageOut The return bitmap
    * @param[out] distanceFieldOut The return depth field alpha map
+   * @param[in] hollow Optional - Set to true for a thick circle outline without fill
    */
-  void GenerateCircle( const Dali::Size& size, std::vector<unsigned char>& distanceFieldOut );
+  void GenerateCircle( const Dali::Size& size, std::vector<unsigned char>& distanceFieldOut, bool hollow = false );
 
   /**
    * Creates the logo.
@@ -372,11 +366,9 @@ private: // Application callbacks & implementation
 private:
 
   Dali::Application&              mApplication;              ///< Application instance.
-  Dali::Layer                     mBackgroundLayer;          ///< Background resides on a separate layer.
-  Dali::Toolkit::TableView        mRootActor;                ///< All content (excluding background is anchored to this Actor)
+  Dali::Toolkit::Control          mRootActor;                ///< All content (excluding background is anchored to this Actor)
   Dali::Animation                 mRotateAnimation;          ///< Animation to rotate and resize mRootActor.
   Dali::Animation                 mPressedAnimation;         ///< Button press scaling animation.
-  Dali::Layer                     mScrollViewLayer;          ///< ScrollView resides on a separate layer.
   Dali::Toolkit::ScrollView       mScrollView;               ///< ScrollView container (for all Examples)
   Dali::Toolkit::ScrollViewEffect mScrollViewEffect;         ///< Effect to be applied to the scroll view
   Dali::Toolkit::RulerPtr         mScrollRulerX;             ///< ScrollView X (horizontal) ruler
@@ -390,6 +382,7 @@ private:
   AnimationList                   mBackgroundAnimations;     ///< List of background bubble animations
   ExampleList                     mExampleList;              ///< List of examples.
 
+  float                           mPageWidth;                ///< The width of a page within the scroll-view, used to calculate the domain
   int                             mTotalPages;               ///< Total pages within scrollview.
 
   bool                            mScrolling:1;              ///< Flag indicating whether view is currently being scrolled

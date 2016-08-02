@@ -94,7 +94,7 @@ Dali::Layer CreateToolbar( Dali::Toolkit::ToolBar& toolBar,
   {
     Dali::Toolkit::TextLabel label = Dali::Toolkit::TextLabel::New();
     label.SetAnchorPoint( Dali::AnchorPoint::TOP_LEFT );
-    label.SetProperty( Dali::Toolkit::Control::Property::STYLE_NAME, "toolbarlabel" );
+    label.SetStyleName( "ToolbarLabel" );
     label.SetProperty( Dali::Toolkit::TextLabel::Property::TEXT, title );
     label.SetProperty( Dali::Toolkit::TextLabel::Property::HORIZONTAL_ALIGNMENT, "CENTER" );
     label.SetProperty( Dali::Toolkit::TextLabel::Property::VERTICAL_ALIGNMENT, "CENTER" );
@@ -117,6 +117,9 @@ Dali::Layer CreateView( Dali::Application& application,
                         const ViewStyle& style = DEFAULT_VIEW_STYLE )
 {
   Dali::Stage stage = Dali::Stage::GetCurrent();
+
+  // Hide the indicator bar
+  application.GetWindow().ShowIndicator( Dali::Window::INVISIBLE );
 
   // Create default View.
   view = Dali::Toolkit::Control::New();
@@ -165,7 +168,7 @@ Dali::Layer CreateView( Dali::Application& application,
 Dali::Toolkit::TextLabel CreateToolBarLabel( const std::string& text )
 {
   Dali::Toolkit::TextLabel label = Dali::Toolkit::TextLabel::New( text );
-  label.SetProperty( Dali::Toolkit::Control::Property::STYLE_NAME, "toolbarlabel" );
+  label.SetStyleName( "ToolbarLabel" );
   label.SetProperty( Dali::Toolkit::TextLabel::Property::HORIZONTAL_ALIGNMENT, "CENTER" );
   label.SetProperty( Dali::Toolkit::TextLabel::Property::VERTICAL_ALIGNMENT, "CENTER" );
   label.SetResizePolicy( Dali::ResizePolicy::FILL_TO_PARENT, Dali::Dimension::HEIGHT );

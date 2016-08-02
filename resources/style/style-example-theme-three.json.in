@@ -1,0 +1,51 @@
+{
+  "styles":
+  {
+    "Title":{
+      "textColor":"#0000ff",
+      "background":
+      {
+        "visualType":"COLOR",
+        "mixColor": [ 1.0, 1.0, 1.0, 1.0 ]
+      }
+    },
+    "TableView":{
+      "background":
+      {
+        "visualType":"COLOR",
+        "mixColor": [ 1.0, 1.0, 1.0, 0.03 ]
+      }
+    },
+    "RadioButton":{
+      "label":{
+        "textColor": [1,1,1,1]
+      }
+    },
+    "CheckboxButton":{
+      "label":{
+        "textColor": [1,1,1,1]
+      }
+    },
+    "ColorLabel1":{
+      "textColor": [1,0,0,1]
+    },
+    "ColorLabel2":{
+      "textColor": [0,1,0,1]
+    },
+    "ColorLabel3":{
+      "textColor": [0.3,0.3,1,1]
+    },
+    "ThemeLabel":{
+      "textColor":[0,1,1,1]
+    },
+    "PopupTitle":{
+      "textColor":[1,1,1,1]
+    },
+    "PopupBody":{
+      "textColor":[1,1,0,1]
+    },
+    "TextLabel":{
+      "textColor":[0,0,0,1]
+    }
+  }
+}
