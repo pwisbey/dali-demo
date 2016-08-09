@@ -1,5 +1,7 @@
 #include <dali-toolkit/dali-toolkit.h>
 #include <dali/public-api/object/property-map.h>
+#include "mesh-visual-shaders.h"
+#include "shared/utility.h"
 
 using namespace Dali;
 using namespace Dali::Toolkit;
@@ -44,7 +46,7 @@ namespace
   const float MODEL_SCALE =                    0.75f;
   const float LIGHT_SCALE =                    0.15f;
   const float BUTTONS_OFFSET_BOTTOM =          0.9f;
-  const int   NUM_MESHES =                     2;
+  const int   NUM_MESHES =                     1;//TODOVR
 
   //Used to identify actors.
   const int MODEL_TAG = 0;
@@ -59,8 +61,8 @@ public:
 
   MeshVisualController( Application& application )
   : mApplication( application ),   //Store handle to the application.
-    mModelIndex( 1 ),              //Start with metal robot.
-    mShadingModeIndex( 0 ),        //Start with textured with detailed specular lighting.
+    mModelIndex( 2 ),              //Start with metal robot.
+    mShadingModeIndex( 1 ),        //Start with textured with detailed specular lighting.
     mTag( -1 ),                    //Non-valid default, which will get set to a correct value when used.
     mSelectedModelIndex( -1 ),     //Non-valid default, which will get set to a correct value when used.
     mPaused( false ),              //Animations play by default.
@@ -77,6 +79,9 @@ public:
   // The Init signal is received once (only) during the Application lifetime
   void Create( Application& application )
   {
+    //todor
+    application.SetViewMode( VR );
+
     // Get a handle to the stage
     Stage stage = Stage::GetCurrent();
     stage.SetBackgroundColor( Vector4( 0.0, 0.5, 1.0, 1.0 ) );
@@ -91,6 +96,48 @@ public:
     baseLayer.RegisterProperty( "Tag", LAYER_TAG ); //Used to differentiate between different kinds of actor.
     baseLayer.TouchedSignal().Connect( this, &MeshVisualController::OnTouch );
     stage.Add( baseLayer );
+
+
+
+    const float   CUBE_WIDTH_SCALE( 2.0f );                   ///< The width (and height + depth) of the main and reflection cubes.
+    const char * const CUBE_TEXTURE( DEMO_IMAGE_DIR "people-medium-1.jpg" );
+    const Vector4 CUBE_COLOR( 1.0f, 1.0f, 1.0f, 1.0f );        ///< White.
+    // Main cube:
+    // Make the demo scalable with different resolutions by basing
+    // the cube size on a percentage of the stage size.
+    float scaleSize( std::min( stage.GetSize().width, stage.GetSize().height ) );
+    float cubeWidth( scaleSize * CUBE_WIDTH_SCALE );
+    Vector3 cubeSize( cubeWidth, cubeWidth, cubeWidth );
+    // Create the geometry for the cube, and the texture.
+    Geometry cubeGeometry = CreateCubeVertices( Vector3::ONE, false );
+    TextureSet cubeTextureSet = CreateTextureSet( CUBE_TEXTURE );
+    // Create the cube object and add it.
+    // Note: The cube is anchored around its base for animation purposes, so the position can be zero.
+    Toolkit::Control container = Toolkit::Control::New();
+    container.SetAnchorPoint( AnchorPoint::BOTTOM_CENTER );
+    container.SetParentOrigin( ParentOrigin::BOTTOM_CENTER );
+    container.SetSize( cubeSize );
+    container.SetPosition( 0.0f, 0.0f, 960.0f );
+    container.SetResizePolicy( ResizePolicy::FIXED, Dimension::ALL_DIMENSIONS );
+    // Create a renderer from the geometry and add the texture.
+    Renderer renderer = CreateRenderer( cubeGeometry, cubeSize, true, CUBE_COLOR );
+    renderer.SetTextures( cubeTextureSet );
+    // Setup the renderer properties:
+    // We are writing to the color buffer & culling back faces.
+    renderer.SetProperty( Renderer::Property::WRITE_TO_COLOR_BUFFER, true );
+    renderer.SetProperty( Renderer::Property::FACE_CULLING_MODE, FaceCullingMode::FRONT );
+    // No stencil is used for the main cube.
+    renderer.SetProperty( Renderer::Property::STENCIL_MODE, StencilMode::OFF );
+    // We do need to write to the depth buffer as other objects need to appear underneath this cube.
+    renderer.SetProperty( Renderer::Property::DEPTH_WRITE_MODE, DepthWriteMode::OFF );
+    // We do not need to test the depth buffer as we are culling the back faces.
+    renderer.SetProperty( Renderer::Property::DEPTH_TEST_MODE, DepthTestMode::OFF );
+    // This object must be rendered 1st.
+    //renderer.SetProperty( Renderer::Property::DEPTH_INDEX, 0 * DEPTH_INDEX_GRANULARITY );
+    container.AddRenderer( renderer );
+    baseLayer.Add( container );
+
+
 
     //Place models on the scene.
     SetupModels( baseLayer );
@@ -126,10 +173,13 @@ public:
     mContainers[0].SetParentOrigin( ParentOrigin::CENTER );
     mContainers[0].SetAnchorPoint( AnchorPoint::CENTER );
 
+    //TODOVR
+#if 0
     //Top left model
     mContainers[1].SetSizeModeFactor( Vector3( MODEL_SCALE / 3.0f, MODEL_SCALE / 3.0f, 0.0f ) );
     mContainers[1].SetParentOrigin( Vector3( 0.05, 0.03, 0.5 ) ); //Offset from top left
     mContainers[1].SetAnchorPoint( AnchorPoint::TOP_LEFT );
+#endif
 
     //Set up models
     for( int i = 0; i < NUM_MESHES; i++ )
@@ -163,6 +213,7 @@ public:
   //Place the various buttons on the bottom of the screen, with title labels where necessary.
   void SetupButtons( Layer layer )
   {
+#if 1
     //Text label title for changing model or shader.
     TextLabel changeTitleLabel = TextLabel::New( "Switch" );
     changeTitleLabel.SetResizePolicy( ResizePolicy::USE_NATURAL_SIZE, Dimension::ALL_DIMENSIONS );
@@ -170,7 +221,7 @@ public:
     changeTitleLabel.SetParentOrigin( Vector3( 0.2, BUTTONS_OFFSET_BOTTOM, 0.5 ) );
     changeTitleLabel.SetAnchorPoint( AnchorPoint::BOTTOM_CENTER );
     layer.Add( changeTitleLabel );
-
+#endif
     //Create button for model changing
     PushButton modelButton = Toolkit::PushButton::New();
     modelButton.SetResizePolicy( ResizePolicy::USE_NATURAL_SIZE, Dimension::ALL_DIMENSIONS );
@@ -180,6 +231,7 @@ public:
     modelButton.SetLabelText( "Model" );
     changeTitleLabel.Add( modelButton );
 
+#if 0
     //Create button for shader changing
     PushButton shaderButton = Toolkit::PushButton::New();
     shaderButton.SetResizePolicy( ResizePolicy::USE_NATURAL_SIZE, Dimension::ALL_DIMENSIONS );
@@ -197,6 +249,7 @@ public:
     pauseButton.SetAnchorPoint( AnchorPoint::TOP_CENTER );
     pauseButton.SetLabelText( " || " );
     layer.Add( pauseButton );
+#endif
 
     //Text label title for light position mode.
     TextLabel lightTitleLabel = TextLabel::New( "Light Position" );
@@ -206,6 +259,7 @@ public:
     lightTitleLabel.SetAnchorPoint( AnchorPoint::BOTTOM_CENTER );
     layer.Add( lightTitleLabel );
 
+#if 0
     //Create button for switching between manual and fixed light position.
     PushButton lightButton = Toolkit::PushButton::New();
     lightButton.SetResizePolicy( ResizePolicy::USE_NATURAL_SIZE, Dimension::ALL_DIMENSIONS );
@@ -214,6 +268,7 @@ public:
     lightButton.SetAnchorPoint( AnchorPoint::TOP_CENTER );
     lightButton.SetLabelText( "FIXED" );
     lightTitleLabel.Add( lightButton );
+#endif
   }
 
   //Add a point light source the the scene, on a layer above the first.
@@ -466,7 +521,6 @@ public:
     return true;
   }
 
-
   //Switch between a fixed light source in front of the screen, and a light source the user can drag around.
   bool OnChangeLightModeClicked( Toolkit::Button button )
   {
@@ -502,6 +556,238 @@ public:
   }
 
 private:
+
+  /**
+   * @brief Struct to store the position, normal and texture coordinates of a single vertex.
+   */
+  struct TexturedVertex
+  {
+    Vector3 position;
+    Vector3 normal;
+    Vector2 textureCoord;
+  };
+
+  /**
+   * @brief Creates a geometry object from vertices and indices.
+   * @param[in] vertices The object vertices
+   * @param[in] indices The object indices
+   * @return A geometry object
+   */
+  Geometry CreateTexturedGeometry( Vector<TexturedVertex>& vertices, Vector<unsigned short>& indices )
+  {
+    // Vertices
+    Property::Map vertexFormat;
+    vertexFormat[POSITION] = Property::VECTOR3;
+    vertexFormat[NORMAL] =   Property::VECTOR3;
+    vertexFormat[TEXTURE] =  Property::VECTOR2;
+
+    PropertyBuffer surfaceVertices = PropertyBuffer::New( vertexFormat );
+    surfaceVertices.SetData( &vertices[0u], vertices.Size() );
+
+    Geometry geometry = Geometry::New();
+    geometry.AddVertexBuffer( surfaceVertices );
+
+    // Indices for triangle formulation
+    geometry.SetIndexBuffer( &indices[0u], indices.Size() );
+    return geometry;
+  }
+
+  /**
+   * @brief Creates a renderer from a geometry object.
+   * @param[in] geometry The geometry to use
+   * @param[in] dimensions The dimensions (will be passed in to the shader)
+   * @param[in] textured Set to true to use the texture versions of the shaders
+   * @param[in] color The base color for the renderer
+   * @return A renderer object
+   */
+  Renderer CreateRenderer( Geometry geometry, Vector3 dimensions, bool textured, Vector4 color )
+  {
+    Stage stage = Stage::GetCurrent();
+    Shader shader;
+
+    if( textured )
+    {
+      shader = Shader::New( VERTEX_SHADER_TEXTURED, FRAGMENT_SHADER_TEXTURED );
+    }
+    else
+    {
+      shader = Shader::New( VERTEX_SHADER, FRAGMENT_SHADER );
+    }
+
+    // Here we modify the light position based on half the stage size as a pre-calculation step.
+    // This avoids the work having to be done in the shader.
+    shader.RegisterProperty( LIGHT_POSITION_UNIFORM_NAME, Vector3( -stage.GetSize().width / 2.0f, -stage.GetSize().width / 2.0f, 1000.0f ) );
+    shader.RegisterProperty( COLOR_UNIFORM_NAME, color );
+    shader.RegisterProperty( OBJECT_DIMENSIONS_UNIFORM_NAME, dimensions );
+
+    return Renderer::New( geometry, shader );
+  }
+
+  /**
+   * @brief Helper method to create a TextureSet from an image URL.
+   * @param[in] url An image URL
+   * @return A TextureSet object
+   */
+  TextureSet CreateTextureSet( const char* url )
+  {
+    TextureSet textureSet = TextureSet::New();
+
+    if( textureSet )
+    {
+      Texture texture = DemoHelper::LoadTexture( url );
+      if( texture )
+      {
+        textureSet.SetTexture( 0u, texture );
+      }
+    }
+
+    return textureSet;
+  }
+
+  /**
+   * @brief Creates a geometry object for a cube (or cuboid).
+   * @param[in] dimensions The desired cube dimensions
+   * @param[in] reflectVerticalUVs Set to True to force the UVs to be vertically flipped
+   * @return A Geometry object
+   */
+  Geometry CreateCubeVertices( Vector3 dimensions, bool reflectVerticalUVs )
+  {
+    Vector<TexturedVertex> vertices;
+    Vector<unsigned short> indices;
+    int vertexIndex = 0u; // Tracks progress through vertices.
+    float scaledX = 0.5f * dimensions.x;
+    float scaledY = 0.5f * dimensions.y;
+    float scaledZ = 0.5f * dimensions.z;
+    float verticalTextureCoord = reflectVerticalUVs ? 0.0f : 1.0f;
+
+    vertices.Resize( 4u * 6u ); // 4 vertices x 6 faces
+
+    Vector<Vector3> positions;  // Stores vertex positions, which are shared between vertexes at the same position but with a different normal.
+    positions.Resize( 8u );
+    Vector<Vector3> normals;    // Stores normals, which are shared between vertexes of the same face.
+    normals.Resize( 6u );
+
+    positions[0] = Vector3( -scaledX,  scaledY, -scaledZ );
+    positions[1] = Vector3(  scaledX,  scaledY, -scaledZ );
+    positions[2] = Vector3(  scaledX,  scaledY,  scaledZ );
+    positions[3] = Vector3( -scaledX,  scaledY,  scaledZ );
+    positions[4] = Vector3( -scaledX, -scaledY, -scaledZ );
+    positions[5] = Vector3(  scaledX, -scaledY, -scaledZ );
+    positions[6] = Vector3(  scaledX, -scaledY,  scaledZ );
+    positions[7] = Vector3( -scaledX, -scaledY,  scaledZ );
+
+    normals[0] = Vector3(  0,  1,  0 );
+    normals[1] = Vector3(  0,  0, -1 );
+    normals[2] = Vector3(  1,  0,  0 );
+    normals[3] = Vector3(  0,  0,  1 );
+    normals[4] = Vector3( -1,  0,  0 );
+    normals[5] = Vector3(  0, -1,  0 );
+
+    // Top face, upward normals.
+    for( int i = 0; i < 4; ++i, ++vertexIndex )
+    {
+      vertices[vertexIndex].position = positions[i];
+      vertices[vertexIndex].normal = normals[0];
+      // The below logic forms the correct U/V pairs for a quad when "i" goes from 0 to 3.
+      vertices[vertexIndex].textureCoord = Vector2( ( i == 1 || i == 2 ) ? 1.0f : 0.0f, ( i == 2 || i == 3 ) ? 1.0f : 0.0f );
+    }
+
+    // Top face, outward normals.
+    for( int i = 0; i < 4; ++i, vertexIndex += 2 )
+    {
+      vertices[vertexIndex].position = positions[i];
+      vertices[vertexIndex].normal = normals[i + 1];
+
+      if( i == 3 )
+      {
+        // End, so loop around.
+        vertices[vertexIndex + 1].position = positions[0];
+      }
+      else
+      {
+        vertices[vertexIndex + 1].position = positions[i + 1];
+      }
+      vertices[vertexIndex + 1].normal = normals[i + 1];
+
+      vertices[vertexIndex].textureCoord = Vector2( 0.0f, verticalTextureCoord );
+      vertices[vertexIndex+1].textureCoord = Vector2( 1.0f, verticalTextureCoord );
+    }
+
+    // Flip the vertical texture coord for the UV values of the bottom points.
+    verticalTextureCoord = 1.0f - verticalTextureCoord;
+
+    // Bottom face, outward normals.
+    for( int i = 0; i < 4; ++i, vertexIndex += 2 )
+    {
+      vertices[vertexIndex].position = positions[i + 4];
+      vertices[vertexIndex].normal = normals[i + 1];
+
+      if( i == 3 )
+      {
+        // End, so loop around.
+        vertices[vertexIndex + 1].position = positions[4];
+      }
+      else
+      {
+        vertices[vertexIndex + 1].position = positions[i + 5];
+      }
+      vertices[vertexIndex + 1].normal = normals[i + 1];
+
+      vertices[vertexIndex].textureCoord = Vector2( 0.0f, verticalTextureCoord );
+      vertices[vertexIndex+1].textureCoord = Vector2( 1.0f, verticalTextureCoord );
+    }
+
+    // Bottom face, downward normals.
+    for( int i = 0; i < 4; ++i, ++vertexIndex )
+    {
+      // Reverse positions for bottom face to keep triangles clockwise (for culling).
+      vertices[vertexIndex].position = positions[ 7 - i ];
+      vertices[vertexIndex].normal = normals[5];
+      // The below logic forms the correct U/V pairs for a quad when "i" goes from 0 to 3.
+      vertices[vertexIndex].textureCoord = Vector2( ( i == 1 || i == 2 ) ? 1.0f : 0.0f, ( i == 2 || i == 3 ) ? 1.0f : 0.0f );
+    }
+
+    // Create cube indices.
+    int triangleIndex = 0u;     //Track progress through indices.
+    indices.Resize( 3u * 12u ); // 3 points x 12 triangles.
+
+    // Top face.
+    indices[triangleIndex] =     0;
+    indices[triangleIndex + 1] = 1;
+    indices[triangleIndex + 2] = 2;
+    indices[triangleIndex + 3] = 2;
+    indices[triangleIndex + 4] = 3;
+    indices[triangleIndex + 5] = 0;
+    triangleIndex += 6;
+
+    int topFaceStart = 4u;
+    int bottomFaceStart = topFaceStart + 8u;
+
+    // Side faces.
+    for( int i = 0; i < 8; i += 2, triangleIndex += 6 )
+    {
+      indices[triangleIndex    ] = i + topFaceStart;
+      indices[triangleIndex + 1] = i + bottomFaceStart + 1;
+      indices[triangleIndex + 2] = i + topFaceStart + 1;
+      indices[triangleIndex + 3] = i + topFaceStart;
+      indices[triangleIndex + 4] = i + bottomFaceStart;
+      indices[triangleIndex + 5] = i + bottomFaceStart + 1;
+    }
+
+    // Bottom face.
+    indices[triangleIndex] =     20;
+    indices[triangleIndex + 1] = 21;
+    indices[triangleIndex + 2] = 22;
+    indices[triangleIndex + 3] = 22;
+    indices[triangleIndex + 4] = 23;
+    indices[triangleIndex + 5] = 20;
+
+    // Use the helper method to create the geometry object.
+    return CreateTexturedGeometry( vertices, indices );
+  }
+
+private:
+
   Application&  mApplication;
 
   //The models displayed on screen, including information about rotation.

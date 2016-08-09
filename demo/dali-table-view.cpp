@@ -180,6 +180,9 @@ void DaliTableView::SortAlphabetically( bool sortAlphabetically )
 
 void DaliTableView::Initialize( Application& application )
 {
+  //todor
+  application.SetViewMode( STEREO_HORIZONTAL );
+
   Stage::GetCurrent().KeyEventSignal().Connect( this, &DaliTableView::OnKeyEvent );
 
   const Vector2 stageSize = Stage::GetCurrent().GetSize();
