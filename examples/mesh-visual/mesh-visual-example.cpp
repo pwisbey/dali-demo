@@ -85,7 +85,8 @@ public:
     // Get a handle to the stage
     Stage stage = Stage::GetCurrent();
     stage.SetBackgroundColor( Vector4( 0.0, 0.5, 1.0, 1.0 ) );
-
+    application.SetViewMode( Dali::VR );
+    //application.SetStereoBase( 105.0f );
     //Set up layer to place objects on.
     Layer baseLayer = Layer::New();
     baseLayer.SetParentOrigin( ParentOrigin::CENTER );

@@ -1,3 +1,5 @@
+#include "../examples/hello-world/hello-world-example.cpp"
+#if 0
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -88,3 +90,4 @@ int DALI_EXPORT_API main(int argc, char **argv)
 
   return 0;
 }
+#endif

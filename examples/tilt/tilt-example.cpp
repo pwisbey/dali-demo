@@ -85,7 +85,7 @@ public:
 
     mTextLabel.SetOrientation(Quaternion());
     mTextLabel.RotateBy(rollRot);
-    mTextLabel.RotateBy(pitchRot);;
+    mTextLabel.RotateBy(pitchRot);
   }
 
 private:
