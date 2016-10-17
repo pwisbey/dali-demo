@@ -106,6 +106,21 @@ public:
     }
   }
 
+  /**
+   * @brief OnKeyEvent signal handler.
+   * @param[in] event The key event information
+   */
+  void OnKeyEvent( const KeyEvent& event )
+  {
+    if( event.state == KeyEvent::Down )
+    {
+      if ( IsKey( event, Dali::DALI_KEY_ESCAPE ) || IsKey( event, Dali::DALI_KEY_BACK ) )
+      {
+        mApplication.Quit();
+      }
+    }
+  }
+
 private:
   Application&  mApplication;
   TiltSensor mTiltSensor;

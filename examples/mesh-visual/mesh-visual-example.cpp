@@ -57,9 +57,9 @@ namespace
   const float Y_ROTATION_DISPLACEMENT_FACTOR = 60.0f;
   const float MODEL_SCALE =                    0.75f;
   const float LIGHT_SCALE =                    0.15f;
-  const float BUTTONS_OFFSET_BOTTOM =          0.9f;
+  const float BUTTONS_OFFSET_BOTTOM =          0.08f;
   const float BUTTONS_OFFSET_SIDE =            0.2f;
-  const int   NUM_MESHES =                     1;//TODOVR
+  const int   NUM_MESHES =                     2;
 
   //Used to identify actors.
   const int MODEL_TAG = 0;
@@ -74,8 +74,8 @@ public:
 
   MeshVisualController( Application& application )
   : mApplication( application ),   //Store handle to the application.
-    mModelIndex( 2 ),              //Start with metal robot.
-    mShadingModeIndex( 1 ),        //Start with textured with detailed specular lighting.
+    mModelIndex( 1 ),              //Start with metal robot.
+    mShadingModeIndex( 0 ),        //Start with texture and detailed specular lighting.
     mTag( -1 ),                    //Non-valid default, which will get set to a correct value when used.
     mSelectedModelIndex( -1 ),     //Non-valid default, which will get set to a correct value when used.
     mPaused( false ),              //Animations play by default.
@@ -96,10 +96,6 @@ public:
     // Get a handle to the stage
     Stage stage = Stage::GetCurrent();
     stage.SetBackgroundColor( Vector4( 0.0, 0.5, 1.0, 1.0 ) );
-
-    //TODOVR
-    application.SetViewMode( Dali::VR );
-    //application.SetStereoBase( 105.0f );
 
     //Set up root layer to receive touch gestures.
     Layer rootLayer = stage.GetRootLayer();
@@ -599,6 +595,12 @@ public:
     {
       button.SetLabelText( BACK );
     }
+
+    //Change light image.
+    SetLightImage();
+
+    //Update light to account for the change.
+    SetLightMode();
 
     //Change light image.
     SetLightImage();

@@ -230,14 +230,6 @@ public:
   {
     Stage::GetCurrent().KeyEventSignal().Connect(this, &ExampleController::OnKeyEvent);
 
-    application.SetViewMode( Dali::VR );
-
-    TiltSensor mSensor = TiltSensor::Get();
-    if( mSensor.Enable() )
-    {
-      mSensor.TiltedSignal().Connect( this, &ExampleController::OnTilted );
-    }
-
     // Hide the indicator bar
     application.GetWindow().ShowIndicator( Dali::Window::INVISIBLE );
 
@@ -256,32 +248,6 @@ public:
 
     // Create the content layer, which is where game actors appear.
     AddContentLayer();
-  }
-
-  void OnTilted(const TiltSensor& sensor)
-  {
-    //DALI_LOG_ERROR(")
-    Quaternion quat = sensor.GetRotation();
-    Quaternion quat2 = Stage::GetCurrent().GetCameraActor().GetCurrentOrientation();
-    //Stage::Ge
-    //Actor actor = Stage::GetCurrent().GetLayer( 0 ).GetChildAt( 0 );
-    DALI_LOG_ERROR("ADAM: %f, %f, %f, %f",
-                   quat.AsVector().x,
-                   quat.AsVector().y,
-                   quat.AsVector().z,
-                   quat.AsVector().w
-                   );
-
-    DALI_LOG_ERROR("ADAM: Q2: %f, %f, %f, %f",
-                   quat2.AsVector().x,
-                   quat2.AsVector().y,
-                   quat2.AsVector().z,
-                   quat2.AsVector().w
-                   );
-
-    //quat2.mVector.y = quat.AsVector().y;
-    Stage::GetCurrent().GetCameraActor().SetOrientation( quat2 );
-    //actor.SetOrientation( quat );
   }
 
 private:
