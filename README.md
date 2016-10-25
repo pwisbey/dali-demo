@@ -3,38 +3,24 @@
 # Table of Contents
 
    * [Build Instructions](#build-instructions)
-      * [1. GBS Builds](#1-gbs-builds)
-         * [NON-SMACK Targets](#non-smack-targets)
-         * [SMACK enabled Targets](#smack-enabled-targets)
-         * [DEBUG Builds](#debug-builds)
-      * [2. Building for Ubuntu desktop](#2-building-for-ubuntu-desktop)
+      * [1. Building for Ubuntu desktop](#1-building-for-ubuntu-desktop)
          * [Minimum Requirements](#minimum-requirements)
          * [Building the Repository](#building-the-repository)
+         * [DEBUG Builds](#debug-builds)
+      * [2. GBS Builds](#2-gbs-builds)
+         * [NON-SMACK Targets](#non-smack-targets)
+         * [SMACK enabled Targets](#smack-enabled-targets)
          * [DEBUG Builds](#debug-builds-1)
    * [Creating an example](#creating-an-example)
    * [Installing Emscripten Examples](#installing-emscripten-examples)
 
 # Build Instructions
 
-## 1. GBS Builds
-
-### NON-SMACK Targets
-
-         $ gbs build -A [TARGET_ARCH]
-
-### SMACK enabled Targets
-
-         $ gbs build -A [TARGET_ARCH] --define "%enable_dali_smack_rules 1"
-
-### DEBUG Builds
-
-         $ gbs build -A [TARGET_ARCH] --define "%enable_debug 1"
-
-## 2. Building for Ubuntu desktop
+## 1. Building for Ubuntu desktop
 
 ### Minimum Requirements
 
- - Ubuntu 14.04
+ - Ubuntu 14.04 or later
  - Environment created using dali_env script in dali-core repository
 
 ### Building the Repository
@@ -57,6 +43,20 @@ Specify a debug build when building for desktop by passing the following paramet
 Before running make install as normal:
 
          $ make install -j8
+
+## 2. GBS Builds
+
+### NON-SMACK Targets
+
+         $ gbs build -A [TARGET_ARCH]
+
+### SMACK enabled Targets
+
+         $ gbs build -A [TARGET_ARCH] --define "%enable_dali_smack_rules 1"
+
+### DEBUG Builds
+
+         $ gbs build -A [TARGET_ARCH] --define "%enable_debug 1"
 
 # Creating an example
 
